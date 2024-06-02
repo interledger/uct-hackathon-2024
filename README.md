@@ -1,27 +1,92 @@
-# Donation page template
+# Tippy
 
-This is a basic HTML (and CSS) template for a donation page and a thank you page (after someone has made the donation). Feel free to customise and change the content and images to suit your preferences. Or not. You're here to hack on Open Payments, not learn web development (although it would be nice if you gave it a shot). Do whatever makes you happy.
+Simple Nextjs project that lets creators have a profile that allows them to create fundraising campaigns. They can receive donations through open payments by inserting open payments their wallet address as a payment option.
 
-## Local development
+## Running The Project
 
-1. Clone this repo to your local computer:
+Install pnpm first: https://pnpm.io/installation
 
-   ```shell
-   $ git clone https://github.com/interledger/uct-hackathon-2024.git
-   ```
+Clone this repository then run pnpm install
 
-2. Run a web server out of the folder you cloned the files into. If you do not have web server on your local machine, this repository comes with a very basic node-based server:
+```bash
+pnpm install
+```
 
-   ```shell
-   $ node server.js
-   ```
+### Environment Variables
 
-   The default port is `2000` but you can pass in any other port number you want, for example:
+Setup the environmental variables by copying the .env.copy into a .env file
 
-   ```shell
-   $ node server.js 5432
-   ```
+```bash
+cp .env.copy .env
+```
 
-3. The main page is `index.html`, which contains the form needed to submit the visitor's wallet address and donation amount. The `success.html` page says thank you to the person who submitted their donation successfully.
+### Postgresql docker setup
 
-4. All styles go into the `styles.css` file. If you just want to change the font or colors, swap out the theme variables with your own choices. Otherwise, feel free to add or remove stuff, as long as your payment goes through, everything else is just aesthetics. Have fun!
+Install docker desktop first for your machine:
+https://docs.docker.com/engine/install/
+
+Run the Postgresql server through docker-compose.
+
+```bash
+sudo docker-compose up -d
+```
+
+To stop the container run
+
+```bash
+sudo docker-compose stop
+```
+
+To view local docker containers run
+
+```bash
+sudo docker ps -a
+```
+
+To delete a container local docker containers run
+
+```bash
+docker rm --force <container_id>
+```
+
+Run migrate to update your DB schema
+
+```bash
+npx prisma migrate dev
+```
+
+### Run db migrations
+
+To create tables in the db run:
+
+```bash
+npx prisma migrate
+```
+
+### Run SQL Commands on cli
+
+Run this command to view the container ids:
+
+```bash
+docker ps
+```
+
+Run this command to get into the postgres docker container:
+
+```bash
+docker exec -it postgres_container_id bash
+psql tippy tippy_admin
+```
+
+Then run this command to show the tables:
+`\dt`
+
+Then run this command to show table columns:
+`select * from dashboard_analytics_transaction where false;`
+
+If you face an error 'role does not exists' make sure you delete the tippy_pgdata volume and re-run `docker compose up -d`
+
+### Run SQL Commands on GUI
+
+You can install PGAdmin GUI to view DBs and Tables:
+https://www.pgadmin.org/download/

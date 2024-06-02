@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: tippy_db
+    image: postgres:12
+    environment:
+      POSTGRES_USER: "tippy_admin"
+      POSTGRES_PASSWORD: "tippy"
+      POSTGRES_DB: "tippy"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
