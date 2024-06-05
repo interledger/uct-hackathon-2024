@@ -1,0 +1,37 @@
+import { SignIn } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
+import { Footer } from "$/src/app/_components/Footer/footer";
+import { karla } from "$/src/config/fonts";
+
+export default function Page() {
+  const css = `
+        .clerk-footer {
+            background: hsl(var(--nextui-primary-700));
+        }
+        `;
+  return (
+    <main>
+      <div className="flex flex-col items-center justify-between p-24 ">
+        <div>
+          <style>{css}</style>
+          <SignIn
+            appearance={{
+              baseTheme: dark,
+              elements: {
+                card: "bg-primary-700",
+                headerSubtitle: `font-sans ${karla.variable}`,
+                formFieldLabel: `font-sans ${karla.variable}`,
+                formFieldInput: "bg-white focus:outline-none focus:ring-2",
+                formButtonPrimary: "font-bold",
+                footer: "clerk-footer",
+                footerActionText: `font-sans ${karla.variable}`,
+                footerActionLink: `text-green-300 font-sans ${karla.variable} hover:text-green-300`,
+              },
+            }}
+          />
+        </div>
+      </div>
+      <Footer backgroundColor="dark:fill-blue-300 fill-[#E5E5CF]" />
+    </main>
+  );
+}

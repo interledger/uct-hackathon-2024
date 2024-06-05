@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ps-menu-button:hover {
+  background-color: hsl(var(--nextui-default)) !important;
+}
+
+.ps-submenu-content {
+  background-color: transparent !important;
+}
+
+.ps-submenu-expand-icon {
+  padding-bottom: 3%;
+}

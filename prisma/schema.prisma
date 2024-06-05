@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+//User with an id, name and email as strings
+model User {
+    id              String @id @default(uuid())
+    userId          String   @unique
+    email           String  @default("")
+    firstName       String  @default("")
+    about           String?
+    instagram       String? @unique
+    twitter         String? @unique
+    linkedin        String? @unique
+    imageUrl        String?
+    campaigns       Campaign[]
+}
+
+model Campaign {
+    id              String  @id @default(uuid())
+    title           String
+    about           String 
+    amount          Float
+    walletAddress   String
+    imageUrl        String?
+    user            User? @relation(fields: [userId], references: [userId])
+    userId          String
+}
