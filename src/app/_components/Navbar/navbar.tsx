@@ -15,7 +15,7 @@ import {
   Button,
 } from "@nextui-org/react";
 
-import { FaGithub, FaSearch } from "react-icons/fa";
+import { FaGithub, FaPaintBrush, FaPallet, FaSearch } from "react-icons/fa";
 
 import { useTheme } from "next-themes";
 import { siteConfig } from "$/src/config/site";
@@ -23,6 +23,7 @@ import NextLink from "next/link";
 import { clsx } from "clsx";
 
 import { ThemeSwitch } from "$/src/app/_components/Switch/theme-switch";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export const Navbar = () => {
   const { theme } = useTheme();
@@ -79,40 +80,71 @@ export const Navbar = () => {
         className="hidden basis-1/5 sm:flex sm:basis-full"
         justify="end"
       >
-        <NavbarItem>
-          <Button size="md" color="primary">
-            Sign In
-          </Button>
-        </NavbarItem>
+        <Button
+          as={Link}
+          className="rounded-full"
+          href="/creators"
+          color="primary"
+          endContent={<FaPaintBrush />}
+        >
+          Creators
+        </Button>
+        <SignedIn>
+          <UserButton
+            afterSignOutUrl="/"
+            userProfileUrl="/profile"
+            userProfileMode="navigation"
+          />
+        </SignedIn>
+        <SignedOut>
+          <NavbarItem>
+            <Button as={Link} href="/sign-in" size="md" color="primary">
+              Sign In
+            </Button>
+          </NavbarItem>
+          <NavbarItem>
+            <Button
+              as={Link}
+              href="/sign-up"
+              size="md"
+              color="primary"
+              variant="bordered"
+            >
+              SIGN UP
+            </Button>
+          </NavbarItem>
+        </SignedOut>
         <NavbarItem className="hidden gap-2 sm:flex">
           <ThemeSwitch />
         </NavbarItem>
       </NavbarContent>
 
       <NavbarContent className="basis-1 pl-4 sm:hidden" justify="end">
-        <Link isExternal href={siteConfig.links.github} aria-label="Github">
-          <FaGithub className="text-default-500" />
-        </Link>
+        <Button
+          as={Link}
+          className="rounded-full"
+          href="/creators"
+          color="primary"
+          endContent={<FaPaintBrush />}
+        >
+          Creators
+        </Button>
+        <SignedIn>
+          <UserButton
+            afterSignOutUrl="/"
+            userProfileUrl="/profile"
+            userProfileMode="navigation"
+          />
+        </SignedIn>
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
 
       <NavbarMenu>
-        {searchInput}
         <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
+          {siteConfig.navItems.map((item, index) => (
             <NavbarMenuItem key={`${item.label}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href="#"
-                size="lg"
-              >
+              <Link color="foreground" href="#" size="lg">
                 {item.label}
               </Link>
             </NavbarMenuItem>

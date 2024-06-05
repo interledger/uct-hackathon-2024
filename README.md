@@ -1,92 +1,169 @@
 # Tippy
 
-Simple Nextjs project that lets creators have a profile that allows them to create fundraising campaigns. They can receive donations through open payments by inserting open payments their wallet address as a payment option.
+A simple [Next.js](https://nextjs.org/) tutorial project that for creators to publish fundraising campaigns. They can receive donations through [OP (Open Payments)](https://openpayments.dev/) by inserting their OP wallet address on a campaign.
 
-## Running The Project
+This is a project in [Next.js](https://nextjs.org/) with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-Install pnpm first: https://pnpm.io/installation
+---
 
-Clone this repository then run pnpm install
+## Open Payments
 
-```bash
-pnpm install
+## Technologies 🛠️
+
+- [<img width="30" height="30" src="https://img.icons8.com/plasticine/30/react.png" alt="react"/> **React**](https://react.dev/), [**React-DOM**](https://www.npmjs.com/package/react-dom) and [**React icons**](https://react-icons.github.io/react-icons/)
+
+- [<img width="30" height="30" src="https://img.icons8.com/fluency-systems-regular/30/nextjs.png" alt="nextjs"/> **Next.js 14**](https://nextjs.org/)
+
+- [<img width="30" height="30" src="https://img.icons8.com/?size=100&id=38561&format=png&color=000000" alt="postgresql"/> **PostgreSQL**](https://www.postgresql.org/)
+
+- [<img width="30" height="30" src="https://img.icons8.com/color/30/tailwindcss.png" alt="tailwindcss"/> **Tailwindcss**](https://tailwindcss.com/) and [**NextUI**](https://nextui.org/)
+
+- [**Prisma**](https://www.prisma.io/)
+
+- [<img width="30" height="30" src="https://img.icons8.com/color/30/eslint.png" alt="eslint"/> **ESLint**](https://eslint.org/)
+
+- [**Clerk**](https://clerk.com/), is more than a sign-in-box, integrate complete user management UIs nad APIs, purpose-build for React, Next.js and the Modern Web.
+
+- [**Docker**](https://docs.docker.com/desktop/) for setting up and running containerized applications. We're using docker for setting up and running our Postgresql database on the local machine
+
+- [<img width="30" height="30" src="https://img.icons8.com/ios/30/prisma-orm.png" alt="prisma orm"/> **Prisma**](https://www.prisma.io/), Next-generation Node.js and TypeScript ORM. Prisma unlocks a new level of developer experience when working with databases thanks to its intuitive data model, automated migrations, type-safety & auto-completion.
+
+- **Zod**
+  TypeScript-first schema validation with static type inference
+
+- [**Husky**](https://typicode.github.io/husky/) + [**CommitLint**](https://commitlint.js.org/), husky is for adding git hooks and commitlint checks that the commit message is formatted a certain way.
+
+---
+
+---
+
+## <img width="30" height="30" src="https://img.icons8.com/nolan/30/todo-list.png" alt="todo-list"/> Prerequisites
+
+- Node version 18.x. I used 21.\*
+
+- Docker desktop - [Mac](https://docs.docker.com/desktop/install/mac-install/), [windows](https://docs.docker.com/desktop/install/windows-install/), [linux](https://docs.docker.com/desktop/install/linux-install/)
+
+---
+
+---
+
+### <img width="30" height="30" src="https://img.icons8.com/dusk/30/workstation.png" alt="workstation"/> Getting Started
+
+1. Cloning the repository:
+
+```BASH
+git clone https://github.com/interledger/uct-hackathon-2024.git
 ```
 
-### Environment Variables
+And put inside the root folder
 
-Setup the environmental variables by copying the .env.copy into a .env file
+2. After clonining the GitHub repository and install all the dependencies with:
 
-```bash
-cp .env.copy .env
+```BASH
+npm install
+#or
+npm i
 ```
 
-### Postgresql docker setup
+3. Setup `.env` file:
 
-Install docker desktop first for your machine:
-https://docs.docker.com/engine/install/
+- For the clerk variables create an account on [clerk](https://clerk.com/)
+- Get the keys from API keys on the dashboard
 
-Run the Postgresql server through docker-compose.
+```
+# Postgres
+DATABASE_URL="postgresql://tippy_admin:tippy@localhost:5432/tippy"
 
-```bash
-sudo docker-compose up -d
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/profile"
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/profile"
 ```
 
-To stop the container run
+4. Setup Postgresql
 
 ```bash
-sudo docker-compose stop
+docker-compose up -d
 ```
 
-To view local docker containers run
+5. Setup Prisma
 
-```bash
-sudo docker ps -a
-```
-
-To delete a container local docker containers run
-
-```bash
-docker rm --force <container_id>
-```
-
-Run migrate to update your DB schema
-
-```bash
+```BASH
+npx prisma generate
 npx prisma migrate dev
 ```
 
-### Run db migrations
+6. Start the app, running developer server:
 
-To create tables in the db run:
-
-```bash
-npx prisma migrate
+```BASH
+npm run dev
 ```
 
-### Run SQL Commands on cli
+7. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Run this command to view the container ids:
+---
+
+---
+
+Next steps:
+
+1. Set the DATABASE_URL in the **.env** file to point to your existing database. If your database has no tables yet, read [https://pris.ly/d/getting-started](https://pris.ly/d/getting-started)
+
+2. Set the provider of the datasource block in schema.prisma to match your database: postgresql, mysql, sqlite, sqlserver, mongodb or cockroachdb.
+
+In my case is a **mongoDB atlas**, and after all the schemma run: `npm prisma db push`
+
+3. Run prisma db pull to turn your database schema into a Prisma schema.
+
+4. Run prisma generate to generate the Prisma Client. You can then start querying your database.
+
+More information in our documentation: [https://pris.ly/d/getting-started](https://pris.ly/d/getting-started)
+
+---
+
+---
+
+### <img width="30" height="30" src="https://img.icons8.com/color/30/command-line.png" alt="command-line"/> Useful Commands
+
+- To view local docker containers run
 
 ```bash
-docker ps
+docker ps -a
 ```
 
-Run this command to get into the postgres docker container:
+- To delete a container local docker containers run
+
+```bash
+docker rm --force container_id
+```
+
+- Run this command to get into the postgres docker container:
 
 ```bash
 docker exec -it postgres_container_id bash
 psql tippy tippy_admin
 ```
 
-Then run this command to show the tables:
-`\dt`
+- Then run this command to show the tables:
+  `\dt`
 
-Then run this command to show table columns:
-`select * from dashboard_analytics_transaction where false;`
+#### <img width="30" height="30" src="https://img.icons8.com/color/30/book.png" alt="book"/> Learn More
 
-If you face an error 'role does not exists' make sure you delete the tippy_pgdata volume and re-run `docker compose up -d`
+To learn more about Next.js, take a look at the following resources:
 
-### Run SQL Commands on GUI
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 
-You can install PGAdmin GUI to view DBs and Tables:
-https://www.pgadmin.org/download/
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/)
+
+---
+
+#### Deploy on Vercel
+
+The easiest way to deploy your **Next.js** app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+---

@@ -5,16 +5,12 @@ export type Response = {
   cursor?: string | undefined;
 };
 
-type Period = {
-  start: Date;
-  end: Date;
-};
-
-export type ListingSummary = {
-  suburbName?: string;
-  suburbId?: number;
-  period?: Period;
-  averageListingPrice?: number;
-  averageSoldPrice?: number;
-  averageListingTime?: number;
+export type UserDetail = {
+  about?: string;
+  email?: string;
+  firstName?: string;
+  instagram?: string;
+  twitter?: string;
+  linkedin?: string;
+  imageUrl?: string;
 };

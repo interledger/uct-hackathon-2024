@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
 import { TRPCReactProvider } from "$/src/trpc/react";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -17,10 +18,12 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
   return (
-    <TRPCReactProvider>
-      <NextUIProvider navigate={router.push}>
-        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-      </NextUIProvider>
-    </TRPCReactProvider>
+    <ClerkProvider>
+      <TRPCReactProvider>
+        <NextUIProvider navigate={router.push}>
+          <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+        </NextUIProvider>
+      </TRPCReactProvider>
+    </ClerkProvider>
   );
 }

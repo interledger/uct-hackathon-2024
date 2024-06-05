@@ -21,6 +21,6 @@ describe("users", () => {
     const users = usersResponse.data;
 
     expect(users.length).toEqual(1);
-    // expect(users[0]?.userId).toEqual(ctx.session?.userId);
+    expect(users[0]?.userId).toEqual(ctx.session?.userId);
   });
 });

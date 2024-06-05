@@ -13,10 +13,14 @@ datasource db {
 //User with an id, name and email as strings
 model User {
     id              String @id @default(uuid())
-    name            String
-    about           String
-    email           String? @unique
-    phoneNumber     String? @unique
+    userId          String   @unique
+    email           String  @default("")
+    firstName       String  @default("")
+    about           String?
+    instagram       String? @unique
+    twitter         String? @unique
+    linkedin        String? @unique
+    imageUrl        String?
     campaigns       Campaign[]
 }
 
@@ -25,6 +29,8 @@ model Campaign {
     title           String
     about           String 
     amount          Float
-    user            User @relation(fields: [userId], references: [id])
+    walletAddress   String
+    imageUrl        String?
+    user            User? @relation(fields: [userId], references: [userId])
     userId          String
 }

@@ -1,7 +1,9 @@
-import { createTRPCRouter, publicProcedure } from "$/src/server/api/trpc";
 import {
-  campaignSchema,
-  campaignUpdateSchema,
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "$/src/server/api/trpc";
+import {
   campaignGetSchema,
   idSchema,
 } from "$/src/server/api/schemas/campaigns";
@@ -18,7 +20,9 @@ export const campaignsRouter = createTRPCRouter({
         data: {},
       };
 
-      const campaigns = await ctx.db.campaign.findMany();
+      const campaigns = await ctx.db.campaign.findMany({
+        where: input,
+      });
       return { ...response, ...{ data: campaigns } };
     }),
 
@@ -29,39 +33,12 @@ export const campaignsRouter = createTRPCRouter({
     });
   }),
 
-  //create campaign
-  createCampaign: publicProcedure
-    .input(campaignSchema)
-    .mutation(async ({ input, ctx }) => {
-      const response: Response = {
-        success: true,
-        message: "campaign created",
-        data: {},
-      };
-
-      const campaign = await ctx.db.campaign.create({
-        data: campaignSchema.parse(input),
-      });
-
-      return { ...response, ...{ data: campaign } };
-    }),
-
-  //update campaign
-  updateCampaign: publicProcedure
-    .input(campaignUpdateSchema)
-    .mutation(({ input, ctx }) => {
-      return ctx.db.campaign.update({
-        where: {
-          id: input.id.toString(),
-        },
-        data: campaignUpdateSchema.parse(input),
-      });
-    }),
-
   //delete campaign
-  deleteCampaign: publicProcedure.input(idSchema).mutation(({ input, ctx }) => {
-    return ctx.db.campaign.delete({
-      where: idSchema.parse(input),
-    });
-  }),
+  deleteCampaign: protectedProcedure
+    .input(idSchema)
+    .mutation(({ input, ctx }) => {
+      return ctx.db.campaign.delete({
+        where: idSchema.parse(input),
+      });
+    }),
 });

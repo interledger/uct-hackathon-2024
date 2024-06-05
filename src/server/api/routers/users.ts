@@ -1,6 +1,9 @@
-import { createTRPCRouter, publicProcedure } from "$/src/server/api/trpc";
 import {
-  userSchema,
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "$/src/server/api/trpc";
+import {
   userUpdateSchema,
   userGetSchema,
   idSchema,
@@ -27,15 +30,8 @@ export const usersRouter = createTRPCRouter({
     });
   }),
 
-  //create user
-  createUser: publicProcedure.input(userSchema).mutation(({ input, ctx }) => {
-    return ctx.db.user.create({
-      data: userSchema.parse(input),
-    });
-  }),
-
   //update user
-  updateUser: publicProcedure
+  updateUser: protectedProcedure
     .input(userUpdateSchema)
     .mutation(({ input, ctx }) => {
       return ctx.db.user.update({
@@ -47,9 +43,23 @@ export const usersRouter = createTRPCRouter({
     }),
 
   //delete user
-  deleteUser: publicProcedure.input(idSchema).mutation(({ input, ctx }) => {
-    return ctx.db.user.delete({
-      where: idSchema.parse(input),
-    });
-  }),
+  deleteUser: protectedProcedure
+    .input(idSchema)
+    .mutation(async ({ input, ctx }) => {
+      const response: Response = {
+        success: true,
+        message: "User deleted",
+        data: {},
+      };
+
+      const result = await ctx.db.user.delete({
+        where: idSchema.parse(input),
+      });
+
+      if (!result.id) {
+        response.success = false;
+      }
+
+      return { ...response, ...{ data: result } };
+    }),
 });
