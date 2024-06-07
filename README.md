@@ -8,6 +8,13 @@ This is a project in [Next.js](https://nextjs.org/) with [`create-next-app`](htt
 
 ## Open Payments
 
+### Issues
+
+- node-fetch module a dependency requirement for @apidevtools/json-schema-ref-parser which in turn is requirement for @interledger/openapi is not being installed
+  - Manually installed version 2.7.0 because version 3.3.0 is ESM module but @apidevtools uses require rather than import giving an error
+- The specs folder from @interledger/open-payments/dist/openapi/specs is not included in the NextJs build
+  - I’m using custom webpack configuration to copy the files from the node_modules to the .next build folders
+
 ## Technologies 🛠️
 
 - [<img width="30" height="30" src="https://img.icons8.com/plasticine/30/react.png" alt="react"/> **React**](https://react.dev/), [**React-DOM**](https://www.npmjs.com/package/react-dom) and [**React icons**](https://react-icons.github.io/react-icons/)
