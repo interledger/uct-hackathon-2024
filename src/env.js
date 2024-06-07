@@ -11,12 +11,15 @@ export const env = createEnv({
       .string()
       .url()
       .refine(
-        (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
-        "You forgot to change the default URL"
+        (str) => !str.includes("YOUR_POSTGRES_URL_HERE"),
+        "You forgot to change the default URL",
       ),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    OPEN_PAYMENTS_SECRET_KEY_PATH: z.string(),
+    OPEN_PAYMENTS_CLIENT_ADDRESS: z.string(),
+    OPEN_PAYMENTS_KEY_ID: z.string(),
   },
 
   /**
@@ -35,6 +38,9 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    OPEN_PAYMENTS_CLIENT_ADDRESS: process.env.OPEN_PAYMENTS_CLIENT_ADDRESS,
+    OPEN_PAYMENTS_SECRET_KEY_PATH: process.env.OPEN_PAYMENTS_SECRET_KEY_PATH,
+    OPEN_PAYMENTS_KEY_ID: process.env.OPEN_PAYMENTS_KEY_ID,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

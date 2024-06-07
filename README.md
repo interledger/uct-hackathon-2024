@@ -70,6 +70,10 @@ npm i
 - For the clerk variables create an account on [clerk](https://clerk.com/)
 - Get the keys from API keys on the dashboard
 
+- For the Open Payments variables create an account on [rafiki money](https://rafiki.money/auth/signup)
+- Go to settings > developer keys and generate the keys
+- Copy the downloaded private.key file into the root folder of the repository
+
 ```
 # Postgres
 DATABASE_URL="postgresql://tippy_admin:tippy@localhost:5432/tippy"
@@ -79,6 +83,11 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/profile"
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/profile"
+
+# Open Payments
+OPEN_PAYMENTS_CLIENT_ADDRESS=
+OPEN_PAYMENTS_SECRET_KEY_PATH="private.key"
+OPEN_PAYMENTS_KEY_ID=
 ```
 
 4. Setup Postgresql
