@@ -16,8 +16,18 @@ import { unknown } from "zod";
 import { OutgoingPayment, Qoute } from "$/src/utils/types";
 
 export async function getAuthenticatedClient(): Promise<AuthenticatedClient> {
-  // TODO: Instantiate open payments client that connects to the ASE
-  return {} as unknown as AuthenticatedClient;
+  let walletAddress = env.OPEN_PAYMENTS_CLIENT_ADDRESS;
+
+  if (walletAddress.startsWith("$")) {
+    walletAddress = walletAddress.replace("$", "https://");
+  }
+
+  const client = await createAuthenticatedClient({
+    walletAddressUrl: env.OPEN_PAYMENTS_CLIENT_ADDRESS,
+    privateKey: env.OPEN_PAYMENTS_SECRET_KEY_PATH,
+    keyId: env.OPEN_PAYMENTS_KEY_ID,
+  });
+  return client;
 }
 
 export async function getWalletAddressInfo(
