@@ -13,7 +13,6 @@ import { useUser } from "@clerk/nextjs";
 import { Card } from "@nextui-org/react";
 import React from "react";
 import { useFormState } from "react-dom";
-import { donateToCampaign } from "$/src/server/actions/campaign";
 import { api } from "$/src/trpc/react";
 import UserCard from "../_components/User/user";
 

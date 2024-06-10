@@ -476,7 +476,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
                         {" - " + qoute.data?.data.debitAmount?.assetCode ?? ""}
                       </Button>
                       <div className="col-span-2">
-                        {qoute.data?.data.debitAmount.value}
+                        {qoute.data?.data.debitAmount?.value}
                       </div>
                     </span>
                     <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
@@ -490,7 +490,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
                           ""}
                       </Button>
                       <div className="col-span-2">
-                        {qoute.data?.data.receiveAmount.value}
+                        {qoute.data?.data.receiveAmount?.value}
                       </div>
                     </span>
                   </div>
@@ -505,7 +505,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
                         color="warning"
                         href={
                           outgoingPaymentAuthorization.data?.data.interact
-                            .redirect
+                            ?.redirect
                         }
                       >
                         <FaLock size={15} />
@@ -556,7 +556,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
                       color="warning"
                       href={
                         outgoingPaymentAuthorization.data?.data.interact
-                          .redirect
+                          ?.redirect
                       }
                     >
                       <FaSpinner size={15} />
@@ -578,7 +578,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
                       }
                       href={
                         outgoingPaymentAuthorization.data?.data.interact
-                          .redirect
+                          ?.redirect
                       }
                     >
                       <FaCheck size={15} />
