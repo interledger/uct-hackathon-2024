@@ -8,6 +8,18 @@ This is a project in [Next.js](https://nextjs.org/) with [`create-next-app`](htt
 
 ## Open Payments
 
+Open Payments is an open API standard that can be implemented by account servicing entities (e.g. banks, digital wallet providers, and mobile money providers) to facilitate interoperability in the setup and completion of payments. In this tutorial we'll connect to [Rafiki.Money](https://rafiki.money/), a test wallet provider that’s part of the Interledger testnet.
+
+1. Client Keys
+
+- Create an account on Rafiki.Money by following this [setup](https://openpayments.dev/snippets/before-you-begin/)
+
+2. Insert the environment variables for Open Payments into the .env file
+
+- Put the private.key file in the root folder
+- Copy your client's address and insert in the variable OPEN_PAYMENTS_CLIENT_ADDRESS
+- Copy your privat key ID and insert in the variable OPEN_PAYMENTS_KEY_ID
+
 ## Technologies 🛠️
 
 - [<img width="30" height="30" src="https://img.icons8.com/plasticine/30/react.png" alt="react"/> **React**](https://react.dev/), [**React-DOM**](https://www.npmjs.com/package/react-dom) and [**React icons**](https://react-icons.github.io/react-icons/)
@@ -101,24 +113,6 @@ npm run dev
 ```
 
 7. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
----
-
----
-
-Next steps:
-
-1. Set the DATABASE_URL in the **.env** file to point to your existing database. If your database has no tables yet, read [https://pris.ly/d/getting-started](https://pris.ly/d/getting-started)
-
-2. Set the provider of the datasource block in schema.prisma to match your database: postgresql, mysql, sqlite, sqlserver, mongodb or cockroachdb.
-
-In my case is a **mongoDB atlas**, and after all the schemma run: `npm prisma db push`
-
-3. Run prisma db pull to turn your database schema into a Prisma schema.
-
-4. Run prisma generate to generate the Prisma Client. You can then start querying your database.
-
-More information in our documentation: [https://pris.ly/d/getting-started](https://pris.ly/d/getting-started)
 
 ---
 
