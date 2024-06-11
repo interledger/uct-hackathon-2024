@@ -14,12 +14,6 @@ Open Payments is an open API standard that can be implemented by account servici
 
 - Create an account on Rafiki.Money by following this [setup](https://openpayments.dev/snippets/before-you-begin/)
 
-2. Insert the environment variables for Open Payments into the .env file
-
-- Put the private.key file in the root folder
-- Copy your client's address and insert in the variable OPEN_PAYMENTS_CLIENT_ADDRESS
-- Copy your privat key ID and insert in the variable OPEN_PAYMENTS_KEY_ID
-
 ## Technologies 🛠️
 
 - [<img width="30" height="30" src="https://img.icons8.com/plasticine/30/react.png" alt="react"/> **React**](https://react.dev/), [**React-DOM**](https://www.npmjs.com/package/react-dom) and [**React icons**](https://react-icons.github.io/react-icons/)
@@ -53,7 +47,11 @@ Open Payments is an open API standard that can be implemented by account servici
 
 - Node version 18.x. I used 21.\*
 
-- Docker desktop - [Mac](https://docs.docker.com/desktop/install/mac-install/), [windows](https://docs.docker.com/desktop/install/windows-install/), [linux](https://docs.docker.com/desktop/install/linux-install/)
+- PostgreSQL using a or b
+  - a. Download and install docker from [Mac](https://docs.docker.com/desktop/install/mac-install/), [windows](https://docs.docker.com/desktop/install/windows-install/), [linux](https://docs.docker.com/desktop/install/linux-install/)
+    - We can run PostgreSQL from docker which will require minimal setup
+  - b. Download and install PostgreSQL following this tutorial https://www.w3schools.com/postgresql/postgresql_install.php
+    - We'll use pgadmin to create and view our DB data
 
 ---
 
@@ -79,8 +77,13 @@ npm i
 
 3. Setup `.env` file:
 
-- For the clerk variables create an account on [clerk](https://clerk.com/)
-- Get the keys from API keys on the dashboard
+- Clerk env variables
+  - For the clerk variables create an account on [clerk](https://dashboard.clerk.com/sign-up?redirect_url=https%3A%2F%2Fdashboard.clerk.com%2F)
+  - Get the keys from API keys on the dashboard
+- Open Payments env variables
+  - Follow this tutorial [Rafiki.money](https://openpayments.dev/snippets/before-you-begin/)
+  - Copy key ID and the wallet address into the .env file
+  - Put the private key in the root folder i.e. uct-hackathon-2024/private.key
 
 ```
 # Postgres
@@ -91,13 +94,33 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/profile"
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/profile"
+
+# Open Payments
+OPEN_PAYMENTS_CLIENT_ADDRESS=
+OPEN_PAYMENTS_SECRET_KEY_PATH="private.key"
+OPEN_PAYMENTS_KEY_ID=
 ```
 
 4. Setup Postgresql
 
+If using docker
+
 ```bash
 docker-compose up -d
 ```
+
+If using local PostgreSQL
+
+- Open the app Pgadmin
+  - Enter a master password e.g. 123456
+  - Click on Servers and enter your master password if asked
+  - Right click on Login/Group Roles > Create > Login/Group Roles
+  - For the name put tippy_admin
+  - For password put tippy
+  - On privileges select everything
+  - Click save
+  - Right click Databases > Create
+  - For database name put tippy, and owner put tippy_admin
 
 5. Setup Prisma
 

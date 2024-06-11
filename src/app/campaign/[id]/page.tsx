@@ -14,34 +14,55 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Snippet,
   Link,
+  Snippet,
 } from "@nextui-org/react";
 import { Card } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import { api } from "$/src/trpc/react";
-import {
-  FaCheck,
-  FaCreditCard,
-  FaDatabase,
-  FaLock,
-  FaMoneyBill,
-  FaSpinner,
-} from "react-icons/fa";
+import { FaCheck, FaLock, FaSpinner } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
+import WalletAddressDetails from "../../_components/OpenPayments/walletAddressDetails";
+import IncomingPaymentDetails from "../../_components/OpenPayments/incomingPaymentDetails";
+import QuoteDetails from "../../_components/OpenPayments/quoteDetails";
+
+/**
+ * Types
+ * Types helps developers to avoid run-time errors
+ * by showing them methods and variables available to
+ * them when using an object.
+ */
+type paymentStep = {
+  step: number;
+  name: string;
+  next: string;
+  action: () => void;
+};
 
 export default function Campaign({ params }: { params: { id: string } }) {
+  /**
+   * Hooks
+   * Hooks are functions that let you access (hook into) the React state
+   * and lifecycle features from function components.
+   * */
+
+  // useState - used to keep track of component variables
+  const [step, setStep] = useState(0);
+  const [donation, setDonation] = React.useState("");
+  const [senderWalletAddress, setWalletAddress] = React.useState("");
+  const [refetchIncomePayment, setRefetchIncomePayment] = React.useState(false);
+  const [refetchQoute, setRefetchQoute] = React.useState(false);
+
+  // useSearchParams - used to read and modify the query string in the URL for the current location
+  const searchParams = useSearchParams();
+
+  // useDisclosure - Hook provided by nextui to track state of the modal
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const {
     isOpen: isOpOpen,
     onOpen: onOpOpen,
     onOpenChange: onOpOpenChange,
   } = useDisclosure();
-  const [step, setStep] = useState(0);
-  const [donation, setDonation] = React.useState("");
-  const [senderWalletAddress, setWalletAddress] = React.useState("");
-  const [refetchIncomePayment, setRefetchIncomePayment] = React.useState(false);
-  const [refetchQoute, setRefetchQoute] = React.useState(false);
   const [opAuth, setOpAuth] = React.useState({
     walletAddress: "",
     continueAccessToken: "",
@@ -50,8 +71,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
     interactRef: "",
   });
 
-  const searchParams = useSearchParams();
-
+  // tRPC Query hooks - Hooks provided by tRPC to query the API procedures on the server
   const campaign = api.campaigns.getOne.useQuery({
     id: params.id ?? "",
   });
@@ -110,7 +130,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
     { enabled: false },
   );
 
-  // Whenever wallet address or donation changes
+  // Use effect hooks - The hook allows sideeffects or actions to happen based on certain events taking place
   useEffect(() => {
     senderWalletDetails.refetch().catch(() => {
       console.log("Error fetching sender wallet address details");
@@ -122,7 +142,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
     setRefetchQoute(true);
   }, [senderWalletAddress, donation]);
 
-  // Just after mounting check if there is an op-auth
+  // The empty array makes sure this is called on the initial render only and not on subsequent ones
   useEffect(() => {
     const interactRef = searchParams.get("interact_ref");
     const continueAccessToken = localStorage.getItem("continueAccessToken");
@@ -156,21 +176,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
     }
   }, [opAuth]);
 
-  // Types
-  type paymentStep = {
-    step: number;
-    name: string;
-    next: string;
-    action: () => void;
-  };
-
-  type OPAuth = {
-    walletAddress: string;
-    continueAccessToken: string;
-    quoteId: string;
-    interactRef: string;
-  };
-
+  /** Stepper */
   const steps: paymentStep[] = [
     {
       step: 0,
@@ -277,6 +283,9 @@ export default function Campaign({ params }: { params: { id: string } }) {
                   <h3 className="text-foreground/80">
                     R {campaign.data?.amount}
                   </h3>
+                  <Snippet symbol="" color="primary">
+                    {window.location.href}
+                  </Snippet>
                   <p className="text-md mt-2 ">{campaign.data?.about}</p>
                 </div>
               </div>
@@ -340,161 +349,16 @@ export default function Campaign({ params }: { params: { id: string } }) {
               </ModalHeader>
               <ModalBody>
                 {step === 0 && (
-                  <div className="flex flex-col">
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaMoneyBill size={15} />
-                        Currency
-                      </Button>
-                      <div className="col-span-2 text-medium">
-                        {receiverWalletDetails.data?.data.assetCode}
-                      </div>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaLock size={15} />
-                        Auth Server
-                      </Button>
-                      <Snippet className="col-span-2" color="primary">
-                        {receiverWalletDetails.data?.data.authServer}
-                      </Snippet>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaDatabase size={15} />
-                        Res Server
-                      </Button>
-                      <Snippet className="col-span-2" color="primary">
-                        {receiverWalletDetails.data?.data.resourceServer}
-                      </Snippet>
-                    </span>
-                  </div>
+                  <WalletAddressDetails
+                    walletAddressDetails={receiverWalletDetails.data?.data}
+                  />
                 )}
                 {step === 1 && (
-                  <div className="flex flex-col">
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaSpinner size={15} />
-                        Completed
-                      </Button>
-                      <div className="col-span-2">
-                        {String(incomingPayment.data?.data.completed)}
-                      </div>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaCreditCard size={15} />
-                        Payment Address
-                      </Button>
-                      <Snippet className="col-span-2" color="primary">
-                        {incomingPayment.data?.data.walletAddress}
-                      </Snippet>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaMoneyBill size={15} />
-                        Incoming Amount
-                        {" - " +
-                          incomingPayment.data?.data.incomingAmount
-                            ?.assetCode ?? ""}
-                      </Button>
-                      <div className="col-span-2">
-                        {incomingPayment.data?.data.incomingAmount?.value}
-                      </div>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaMoneyBill size={15} />
-                        Received Amount{" "}
-                        {" - " +
-                          incomingPayment.data?.data.receivedAmount
-                            ?.assetCode ?? ""}
-                      </Button>
-                      <div className="col-span-2">
-                        {incomingPayment.data?.data.receivedAmount?.value}
-                      </div>
-                    </span>
-                  </div>
+                  <IncomingPaymentDetails
+                    incomingPaymentDetails={incomingPayment.data?.data}
+                  />
                 )}
-                {step === 2 && (
-                  <div className="flex flex-col">
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaCreditCard size={15} />
-                        Sender Address
-                      </Button>
-                      <Snippet className="col-span-2" color="primary">
-                        {qoute.data?.data.walletAddress}
-                      </Snippet>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaLock size={15} />
-                        IP URL
-                      </Button>
-                      <Snippet
-                        className="col-span-2 overflow-hidden pr-20"
-                        color="primary"
-                      >
-                        {qoute.data?.data.receiver}
-                      </Snippet>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaMoneyBill size={15} />
-                        Debit Amount{" "}
-                        {" - " + qoute.data?.data.debitAmount?.assetCode ?? ""}
-                      </Button>
-                      <div className="col-span-2">
-                        {qoute.data?.data.debitAmount?.value}
-                      </div>
-                    </span>
-                    <span className="grid grid-cols-3 items-center gap-2 pt-2 font-bold">
-                      <Button
-                        className="col col-span-1 justify-start"
-                        variant="light"
-                      >
-                        <FaMoneyBill size={15} />
-                        Receive Amount{" "}
-                        {" - " + qoute.data?.data.receiveAmount?.assetCode ??
-                          ""}
-                      </Button>
-                      <div className="col-span-2">
-                        {qoute.data?.data.receiveAmount?.value}
-                      </div>
-                    </span>
-                  </div>
-                )}
+                {step === 2 && <QuoteDetails qouteDetails={qoute.data?.data} />}
                 {step === 3 && (
                   <div className="flex flex-col">
                     <span className="flex flex-col items-center pt-2 font-bold">

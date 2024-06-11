@@ -8,16 +8,13 @@ import {
   NavbarBrand,
   NavbarItem,
   NavbarMenuItem,
-  Kbd,
   Link,
-  Input,
   link as linkStyles,
   Button,
 } from "@nextui-org/react";
 
-import { FaGithub, FaPaintBrush, FaPallet, FaSearch } from "react-icons/fa";
+import { FaPaintBrush } from "react-icons/fa";
 
-import { useTheme } from "next-themes";
 import { siteConfig } from "$/src/config/site";
 import NextLink from "next/link";
 import { clsx } from "clsx";
@@ -26,29 +23,6 @@ import { ThemeSwitch } from "$/src/app/_components/Switch/theme-switch";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export const Navbar = () => {
-  const { theme } = useTheme();
-
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      endContent={
-        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <FaSearch className="pointer-events-none flex-shrink-0 text-base text-default-400" />
-      }
-      type="search"
-    />
-  );
-
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
