@@ -11,8 +11,7 @@
     "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
-    "test": "vitest",
-    "prepare": "husky install | chmod ug+x .husky/*"
+    "test": "vitest"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.9",
