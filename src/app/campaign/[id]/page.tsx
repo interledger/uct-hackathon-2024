@@ -256,6 +256,13 @@ export default function Campaign({ params }: { params: { id: string } }) {
     onOpen();
   }
 
+  function formatWalletAddress(walletAddress: string) {
+    if (walletAddress.startsWith("$"))
+      walletAddress = walletAddress.replace("$", "https://");
+
+    return walletAddress;
+  }
+
   return (
     <Container className="flex flex-col items-center">
       <Card isBlurred className="w-9/12 border-none" shadow="sm">
@@ -297,7 +304,9 @@ export default function Campaign({ params }: { params: { id: string } }) {
                   label="Pay From"
                   placeholder="Enter Your Wallet Address"
                   value={senderWalletAddress}
-                  onValueChange={setWalletAddress}
+                  onValueChange={(walletAddress) => {
+                    setWalletAddress(formatWalletAddress(walletAddress));
+                  }}
                   color="primary"
                   required
                 />
