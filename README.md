@@ -83,6 +83,7 @@ npm i
 - Open Payments env variables
   - Follow this tutorial [Rafiki.money](https://openpayments.dev/snippets/before-you-begin/)
   - Copy key ID and the wallet address into the .env file
+    - NB make sure to replace the preceding $ with https://
   - Put the private key in the root folder i.e. uct-hackathon-2024/private.key
 
 - For the Open Payments variables create an account on [rafiki money](https://rafiki.money/auth/signup)
@@ -129,8 +130,7 @@ If using local PostgreSQL
 5. Setup Prisma
 
 ```BASH
-npx prisma generate
-npx prisma migrate dev
+npx prisma generate & npx prisma migrate dev
 ```
 
 6. Start the app, running developer server:
