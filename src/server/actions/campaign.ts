@@ -46,20 +46,3 @@ export async function createCampaign(previousState: any, formData: FormData) {
 
   return { ...response, ...{ data: campaign } };
 }
-
-export async function donateToCampaign(previousState: any, formData: FormData) {
-  const response: Response = {
-    success: true,
-    message: "Donation Successfully Sent",
-    data: {},
-  };
-
-  const donationData = {
-    walletAddress: formData.get("walletAddress")?.toString() ?? "",
-    amount: Number(formData.get("amount")) ?? 0,
-  };
-
-  // TODO: Functionality to send open payment to wallet address
-
-  return { ...response, ...{ data: {} } };
-}

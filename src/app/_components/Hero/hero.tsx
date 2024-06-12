@@ -27,7 +27,7 @@ const Hero = () => {
           <Button
             className="rounded-sm px-8 py-4 text-base font-semibold"
             size="lg"
-            color="default"
+            color="secondary"
           >
             <Link
               isExternal

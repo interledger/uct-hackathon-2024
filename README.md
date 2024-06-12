@@ -8,6 +8,12 @@ This is a project in [Next.js](https://nextjs.org/) with [`create-next-app`](htt
 
 ## Open Payments
 
+Open Payments is an open API standard that can be implemented by account servicing entities (e.g. banks, digital wallet providers, and mobile money providers) to facilitate interoperability in the setup and completion of payments. In this tutorial we'll connect to [Rafiki.Money](https://rafiki.money/), a test wallet provider that’s part of the Interledger testnet.
+
+1. Client Keys
+
+- Create an account on Rafiki.Money by following this [setup](https://openpayments.dev/snippets/before-you-begin/)
+
 ## Technologies 🛠️
 
 - [<img width="30" height="30" src="https://img.icons8.com/plasticine/30/react.png" alt="react"/> **React**](https://react.dev/), [**React-DOM**](https://www.npmjs.com/package/react-dom) and [**React icons**](https://react-icons.github.io/react-icons/)
@@ -41,7 +47,11 @@ This is a project in [Next.js](https://nextjs.org/) with [`create-next-app`](htt
 
 - Node version 18.x. I used 21.\*
 
-- Docker desktop - [Mac](https://docs.docker.com/desktop/install/mac-install/), [windows](https://docs.docker.com/desktop/install/windows-install/), [linux](https://docs.docker.com/desktop/install/linux-install/)
+- PostgreSQL using a or b
+  - a. Download and install docker from [Mac](https://docs.docker.com/desktop/install/mac-install/), [windows](https://docs.docker.com/desktop/install/windows-install/), [linux](https://docs.docker.com/desktop/install/linux-install/)
+    - We can run PostgreSQL from docker which will require minimal setup
+  - b. Download and install PostgreSQL following this tutorial https://www.w3schools.com/postgresql/postgresql_install.php
+    - We'll use pgadmin to create and view our DB data
 
 ---
 
@@ -67,8 +77,13 @@ npm i
 
 3. Setup `.env` file:
 
-- For the clerk variables create an account on [clerk](https://clerk.com/)
-- Get the keys from API keys on the dashboard
+- Clerk env variables
+  - For the clerk variables create an account on [clerk](https://dashboard.clerk.com/sign-up?redirect_url=https%3A%2F%2Fdashboard.clerk.com%2F)
+  - Get the keys from API keys on the dashboard
+- Open Payments env variables
+  - Follow this tutorial [Rafiki.money](https://openpayments.dev/snippets/before-you-begin/)
+  - Copy key ID and the wallet address into the .env file
+  - Put the private key in the root folder i.e. uct-hackathon-2024/private.key
 
 - For the Open Payments variables create an account on [rafiki money](https://rafiki.money/auth/signup)
 - Go to settings > developer keys and generate the keys
@@ -92,9 +107,24 @@ OPEN_PAYMENTS_KEY_ID=
 
 4. Setup Postgresql
 
+If using docker
+
 ```bash
 docker-compose up -d
 ```
+
+If using local PostgreSQL
+
+- Open the app Pgadmin
+  - Enter a master password e.g. 123456
+  - Click on Servers and enter your master password if asked
+  - Right click on Login/Group Roles > Create > Login/Group Roles
+  - For the name put tippy_admin
+  - For password put tippy
+  - On privileges select everything
+  - Click save
+  - Right click Databases > Create
+  - For database name put tippy, and owner put tippy_admin
 
 5. Setup Prisma
 
@@ -110,24 +140,6 @@ npm run dev
 ```
 
 7. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
----
-
----
-
-Next steps:
-
-1. Set the DATABASE_URL in the **.env** file to point to your existing database. If your database has no tables yet, read [https://pris.ly/d/getting-started](https://pris.ly/d/getting-started)
-
-2. Set the provider of the datasource block in schema.prisma to match your database: postgresql, mysql, sqlite, sqlserver, mongodb or cockroachdb.
-
-In my case is a **mongoDB atlas**, and after all the schemma run: `npm prisma db push`
-
-3. Run prisma db pull to turn your database schema into a Prisma schema.
-
-4. Run prisma generate to generate the Prisma Client. You can then start querying your database.
-
-More information in our documentation: [https://pris.ly/d/getting-started](https://pris.ly/d/getting-started)
 
 ---
 
