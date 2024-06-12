@@ -28,6 +28,15 @@ export async function getWalletAddressInfo(
   return [walletAddress, {} as unknown as WalletAddress];
 }
 
+/**
+ * The method requests a grant from the receivers auth server for creating an incoming payment grant
+ * After receiving the grant the incoming payment resource is created
+ *
+ * @param client
+ * @param value - payment amount to be made
+ * @param walletAddressDetails - wallet address details for the receiver
+ * @returns
+ */
 export async function createIncomingPayment(
   client: AuthenticatedClient,
   value: string,
@@ -37,6 +46,15 @@ export async function createIncomingPayment(
   return {} as unknown as IncomingPaymentWithPaymentMethods;
 }
 
+/**
+ * The method requests a grant to create a qoute on the senders resource server
+ * The qoute is then created on the senders resource server
+ *
+ * @param client
+ * @param incomingPaymentUrl - identifier for the incoming payment the qoute is being created for
+ * @param walletAddressDetails - wallet address details for the sender
+ * @returns
+ */
 export async function createQoute(
   client: AuthenticatedClient,
   incomingPaymentUrl: string,
@@ -46,6 +64,16 @@ export async function createQoute(
   return {} as unknown as Qoute;
 }
 
+/**
+ * This method creates a pending grant which must be authorized by the user
+ * After it is authorized the continuation access token we receive can be used to get the actual OP creation grant
+ * Tells the client to go ask sender for approval and details of where to come back to continue the process
+ *
+ * @param client
+ * @param input - details from the qoute
+ * @param walletAddressDetails - wallet address details for the sender
+ * @returns
+ */
 export async function getOutgoingPaymentAuthorization(
   client: AuthenticatedClient,
   input: OPAuthSchema,
@@ -55,6 +83,14 @@ export async function getOutgoingPaymentAuthorization(
   return {} as unknown as PendingGrant;
 }
 
+/**
+ * This method will now get the grant if the user has given permission
+ * The grant is then used to create the outgoing payment
+ *
+ * @param client
+ * @param input
+ * @returns
+ */
 export async function createOutgoingPayment(
   client: AuthenticatedClient,
   input: OPCreateSchema,
