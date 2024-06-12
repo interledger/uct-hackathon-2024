@@ -31,6 +31,9 @@ export default function CampaignCard({
   campaign: Campaign;
   refreshCampaigns: () => void;
 }) {
+  const [campaignWalletAddress, setCampaignWalletAddress] = React.useState(
+    campaign.walletAddress,
+  );
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { user } = useUser();
 
@@ -56,6 +59,13 @@ export default function CampaignCard({
       id: id,
     });
     refreshCampaigns();
+  }
+
+  function formatWalletAddress(walletAddress: string) {
+    if (walletAddress.startsWith("$"))
+      walletAddress = walletAddress.replace("$", "https://");
+
+    return walletAddress;
   }
 
   return (
@@ -150,7 +160,10 @@ export default function CampaignCard({
                 className="text-sm"
                 label="wallet address"
                 placeholder="Open payment address to donate to"
-                defaultValue={campaign.walletAddress}
+                value={campaignWalletAddress}
+                onValueChange={(walletAddress) => {
+                  setCampaignWalletAddress(formatWalletAddress(walletAddress));
+                }}
                 required
               />
               <Textarea
