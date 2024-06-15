@@ -5,6 +5,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "$/src/server/db";
 import { type Response } from "$/src/utils/types";
+import { createAuthenticatedClient } from "@interledger/open-payments";
 
 export async function createCampaign(previousState: any, formData: FormData) {
   const response: Response = {
