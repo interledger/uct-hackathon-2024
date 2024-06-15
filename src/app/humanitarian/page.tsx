@@ -29,7 +29,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
   return (
     <Container className="flex flex-col items-center">
         <div className="grid grid-cols-2 gap-4 w-full p-4">
-    <div className="aspect-square rounded-md bg-blue-500 hover:bg-blue-700 text-white flex items-center justify-center cursor-pointer shadow-lg" onClick={() => alert('Box 1 clicked!')}>
+    <div className="aspect-square rounded-md bg-primary-700 hover:bg-primary-600 text-white flex items-center justify-center cursor-pointer shadow-lg">
         <div className="px-5">
       <div className="text-base">
         <p className="text-3xl">Individual Support</p>
@@ -40,7 +40,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
     </div> 
     </div>
     <a href="profile">
-    <div className="aspect-square rounded-md bg-green-500 hover:bg-green-700 text-white flex items-center justify-center cursor-pointer shadow-lg" onClick={() => alert('Box 2 clicked!')}>
+    <div className="aspect-square rounded-md bg-primary-700 hover:bg-primary-600 text-white flex items-center justify-center cursor-pointer shadow-lg">
         <div className="px-5">
       <div className="text-base">
         <p className="text-3xl">Non-governmental organization (NGOs)</p>

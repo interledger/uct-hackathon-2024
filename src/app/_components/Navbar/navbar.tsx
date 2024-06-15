@@ -12,6 +12,7 @@ import {
   link as linkStyles,
   Button,
 } from "@nextui-org/react";
+import {  Dropdown,  DropdownTrigger,  DropdownMenu,  DropdownItem} from "@nextui-org/dropdown";
 
 import { FaPaintBrush } from "react-icons/fa";
 
@@ -54,6 +55,23 @@ export const Navbar = () => {
         className="hidden basis-1/5 sm:flex sm:basis-full"
         justify="end"
       >
+           <Dropdown>
+      <DropdownTrigger>
+        <Button 
+          variant="bordered" 
+        >
+          Campaign
+        </Button>
+      </DropdownTrigger>
+      <DropdownMenu 
+        aria-label="Action event example" 
+        onAction={(key) => alert(key)}
+      >
+        <DropdownItem key="Humanitarian Aid Fund"><a href="http://localhost:3001/humanitarian">Humanitarian Aid Fund</a></DropdownItem>
+        <DropdownItem key="Environmental Aid Fund">Environmental Aid Fund</DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
+
         <Button
           as={Link}
           className="rounded-full"
@@ -101,6 +119,7 @@ export const Navbar = () => {
           color="primary"
           endContent={<FaPaintBrush />}
         >
+          
           Creators
         </Button>
         <SignedIn>
