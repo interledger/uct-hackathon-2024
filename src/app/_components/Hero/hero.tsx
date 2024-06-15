@@ -8,11 +8,10 @@ const Hero = () => {
     <Container className="flex h-screen flex-col items-center text-center">
       <div className="w-9/12 md:w-6/12">
         <h1 className="mb-5 text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
-          Fund Your Creative Work
+        Transform Lives: Your Donations, Their Impact
         </h1>
         <p className="text-body-color dark:text-body-color-dark mb-12 text-base !leading-relaxed sm:text-lg md:text-xl">
-          Accept support through Open Payments. Start a campaign. Setup a
-          campaign monetary goal. It is easier than you think.
+        Join us today and make a difference! Sign up now to donate and empower NGOs to transform lives.
         </p>
         <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
           <SignedOut>
