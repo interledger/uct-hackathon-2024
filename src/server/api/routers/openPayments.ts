@@ -8,8 +8,13 @@ import {
   getAuthenticatedClient,
   getOutgoingPaymentAuthorization,
   getWalletAddressInfo,
+  processSubscriptionPayment,
 } from "../../helpers/open-payments";
-import { opAuthSchema, opCreateSchema } from "../schemas/openPayments";
+import {
+  opAuthSchema,
+  opCreateSchema,
+  opSubscriptionSchema,
+} from "../schemas/openPayments";
 
 export const openPaymentsRouter = createTRPCRouter({
   getWalletDetails: publicProcedure
@@ -145,13 +150,32 @@ export const openPaymentsRouter = createTRPCRouter({
         data: {},
       };
 
-      console.log("** ou");
-      console.log(input);
       // Initialize Open Payments client
       const client = await getAuthenticatedClient();
 
       // create outgoing authorization grant
       const outgoingPaymentResponse = await createOutgoingPayment(
+        client,
+        input,
+      );
+
+      return { ...response, ...{ data: outgoingPaymentResponse } };
+    }),
+
+  processSubscriptionPayment: publicProcedure
+    .input(opSubscriptionSchema)
+    .query(async ({ input }) => {
+      const response: Response = {
+        success: true,
+        message: "outgoing payment created",
+        data: {},
+      };
+
+      // Initialize Open Payments client
+      const client = await getAuthenticatedClient();
+
+      // create outgoing authorization grant
+      const outgoingPaymentResponse = await processSubscriptionPayment(
         client,
         input,
       );

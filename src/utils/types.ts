@@ -59,3 +59,11 @@ export type OutgoingPayment = {
   createdAt: string;
   updatedAt: string;
 };
+
+export const subscriptionTypes = [
+  "once_off",
+  "new_subscription",
+  "existing_subscription",
+] as const;
+
+export type SubscriptionType = (typeof subscriptionTypes)[number];
