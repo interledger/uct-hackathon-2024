@@ -4,28 +4,45 @@ import {
   type AuthenticatedClient,
   type Grant,
   createAuthenticatedClient,
-  type IncomingPaymentWithPaymentMethods,
   type PendingGrant,
+  isPendingGrant,
+  type OutgoingPaymentWithSpentAmounts,
 } from "@interledger/open-payments";
 import {
   type OPAuthSchema,
   type OPCreateSchema,
+  type OPSubscriptionSchema,
 } from "../api/schemas/openPayments";
 import { randomUUID } from "crypto";
-import { unknown } from "zod";
-import { OutgoingPayment, Qoute } from "$/src/utils/types";
+import { type components } from "@interledger/open-payments/dist/openapi/generated/auth-server-types";
 
-export async function getAuthenticatedClient(): Promise<AuthenticatedClient> {
-  // TODO: Instantiate open payments client that connects to the ASE
-  return {} as unknown as AuthenticatedClient;
+export async function getAuthenticatedClient() {
+  let walletAddress = env.OPEN_PAYMENTS_CLIENT_ADDRESS;
+
+  if (walletAddress.startsWith("$")) {
+    walletAddress = walletAddress.replace("$", "https://");
+  }
+
+  const client = await createAuthenticatedClient({
+    walletAddressUrl: env.OPEN_PAYMENTS_CLIENT_ADDRESS,
+    privateKey: env.OPEN_PAYMENTS_SECRET_KEY_PATH,
+    keyId: env.OPEN_PAYMENTS_KEY_ID,
+  });
+  return client;
 }
 
 export async function getWalletAddressInfo(
   client: AuthenticatedClient,
   walletAddress: string,
 ): Promise<[string, WalletAddress]> {
-  // TODO: Get address info from auth ASE given the url
-  return [walletAddress, {} as unknown as WalletAddress];
+  if (walletAddress.startsWith("$"))
+    walletAddress = walletAddress.replace("$", "https://");
+
+  const walletAddressDetails = await client.walletAddress.get({
+    url: walletAddress,
+  });
+
+  return [walletAddress, walletAddressDetails];
 }
 
 /**
@@ -41,9 +58,49 @@ export async function createIncomingPayment(
   client: AuthenticatedClient,
   value: string,
   walletAddressDetails: WalletAddress,
-): Promise<IncomingPaymentWithPaymentMethods> {
-  // TODO: Create incoming payment resource on the receiver's resource server
-  return {} as unknown as IncomingPaymentWithPaymentMethods;
+) {
+  // Request IP grant
+  const grant = await client.grant.request(
+    {
+      url: walletAddressDetails.authServer,
+    },
+    {
+      access_token: {
+        access: [
+          {
+            type: "incoming-payment",
+            actions: ["read", "create", "complete"],
+          },
+        ],
+      },
+    },
+  );
+
+  if (isPendingGrant(grant)) {
+    throw new Error("Expected non-interactive grant");
+  }
+
+  // create incoming payment
+  const incomingPayment = await client.incomingPayment.create(
+    {
+      url: new URL(walletAddressDetails.id).origin,
+      accessToken: grant.access_token.value,
+    },
+    {
+      walletAddress: walletAddressDetails.id,
+      incomingAmount: {
+        value: value,
+        assetCode: walletAddressDetails.assetCode,
+        assetScale: walletAddressDetails.assetScale,
+      },
+      expiresAt: new Date(Date.now() + 60_000 * 10).toISOString(),
+    },
+  );
+
+  console.log("** Income Payment");
+  console.log(incomingPayment);
+
+  return incomingPayment;
 }
 
 /**
@@ -59,9 +116,44 @@ export async function createQoute(
   client: AuthenticatedClient,
   incomingPaymentUrl: string,
   walletAddressDetails: WalletAddress,
-): Promise<Qoute> {
-  // TODO: Create a qoute resource on the sender's resource server
-  return {} as unknown as Qoute;
+) {
+  // Request Qoute grant
+  const grant = await client.grant.request(
+    {
+      url: walletAddressDetails.authServer,
+    },
+    {
+      access_token: {
+        access: [
+          {
+            type: "quote",
+            actions: ["create", "read", "read-all"],
+          },
+        ],
+      },
+    },
+  );
+
+  if (isPendingGrant(grant)) {
+    throw new Error("Expected non-interactive grant");
+  }
+
+  // create qoute
+  const qoute = await client.quote.create(
+    {
+      url: new URL(walletAddressDetails.id).origin,
+      accessToken: grant.access_token.value,
+    },
+    {
+      method: "ilp",
+      walletAddress: walletAddressDetails.id,
+      receiver: incomingPaymentUrl,
+    },
+  );
+
+  console.log("** qoute");
+  console.log(qoute);
+  return qoute;
 }
 
 /**
@@ -79,8 +171,50 @@ export async function getOutgoingPaymentAuthorization(
   input: OPAuthSchema,
   walletAddressDetails: WalletAddress,
 ): Promise<PendingGrant> {
-  // TODO: Get a pending grant that must be validated by the user on the UI
-  return {} as unknown as PendingGrant;
+  const dateNow = new Date().toISOString();
+  const debitAmount = input.debitAmount;
+  const receiveAmount = input.receiveAmount;
+
+  // Request OP grant
+  const grant = await client.grant.request(
+    {
+      url: walletAddressDetails.authServer,
+    },
+    {
+      access_token: {
+        access: [
+          {
+            identifier: walletAddressDetails.id,
+            type: "outgoing-payment",
+            actions: ["list", "list-all", "read", "read-all", "create"],
+            limits: {
+              ...{
+                debitAmount: debitAmount,
+                receiveAmount: receiveAmount,
+              },
+              ...(input.subscriptionType === "new_subscription"
+                ? { interval: `R${input.payments}/${dateNow}/PT30S` }
+                : {}),
+            },
+          },
+        ],
+      },
+      interact: {
+        start: ["redirect"],
+        finish: {
+          method: "redirect",
+          uri: input.redirectUrl,
+          nonce: randomUUID(),
+        },
+      },
+    },
+  );
+
+  if (!isPendingGrant(grant)) {
+    throw new Error("Expected interactive grant");
+  }
+
+  return grant;
 }
 
 /**
@@ -94,7 +228,112 @@ export async function getOutgoingPaymentAuthorization(
 export async function createOutgoingPayment(
   client: AuthenticatedClient,
   input: OPCreateSchema,
-): Promise<OutgoingPayment> {
-  // TODO: create the outgoing payment by continuing the grant request then creating the outgoing payment
-  return {} as unknown as OutgoingPayment;
+) {
+  let walletAddress = input.walletAddress;
+  if (walletAddress.startsWith("$"))
+    walletAddress = walletAddress.replace("$", "https://");
+
+  // Get the grant since it was still pending
+  const grant = (await client.grant.continue(
+    {
+      accessToken: input.continueAccessToken,
+      url: input.continueUri,
+    },
+    {
+      interact_ref: input.interactRef,
+    },
+  )) as Grant;
+
+  const outgoingPayment = await client.outgoingPayment.create(
+    {
+      url: new URL(walletAddress).origin,
+      accessToken: grant.access_token.value, //OUTGOING_PAYMENT_ACCESS_TOKEN,
+    },
+    {
+      walletAddress: walletAddress,
+      quoteId: input.qouteId, //QUOTE_URL,
+    },
+  );
+
+  console.log("** Outgoing Payment Grant");
+  console.log(grant.access_token);
+
+  return outgoingPayment;
+}
+
+export async function processSubscriptionPayment(
+  client: AuthenticatedClient,
+  input: OPSubscriptionSchema,
+) {
+  // rotate the token
+  const token = await client.token.rotate({
+    url: input.manageUrl,
+    accessToken: input.previousToken,
+  });
+
+  if (!token.access_token) {
+    console.error("** Failed to rotate token.");
+  }
+
+  console.log("** Rotated Token ");
+  console.log(token.access_token);
+
+  const tokenAccessDetails = token.access_token.access as {
+    type: "outgoing-payment";
+    actions: ("create" | "read" | "read-all" | "list" | "list-all")[];
+    identifier: string;
+    limits?: components["schemas"]["limits-outgoing"];
+  }[];
+
+  const receiveAmount = tokenAccessDetails[0]?.limits?.receiveAmount?.value;
+
+  const [receiverWalletAddress, receiverWalletAddressDetails] =
+    await getWalletAddressInfo(client, input.receiverWalletAddress);
+
+  const [senderWalletAddress, senderWalletAddressDetails] =
+    await getWalletAddressInfo(client, tokenAccessDetails[0]?.identifier ?? "");
+
+  // create incoming payment
+  const incomingPayment = await createIncomingPayment(
+    client,
+    receiveAmount!,
+    receiverWalletAddressDetails,
+  );
+
+  // create qoute
+  const quote = await createQoute(
+    client,
+    incomingPayment.id,
+    senderWalletAddressDetails,
+  );
+
+  // create outgoing payment
+  try {
+    const outgoingPayment = await client.outgoingPayment.create(
+      {
+        url: new URL(senderWalletAddress).origin,
+        accessToken: token.access_token.value, //OUTGOING_PAYMENT_ACCESS_TOKEN,
+      },
+      {
+        walletAddress: senderWalletAddress,
+        quoteId: quote.id, //QUOTE_URL,
+      },
+    );
+
+    return outgoingPayment;
+  } catch (error) {
+    console.log(error);
+    return {
+      id: "",
+      walletAddress: senderWalletAddress,
+      quoteId: quote.id,
+      failed: true,
+      receiver: "",
+      receiveAmount: tokenAccessDetails[0]?.limits?.receiveAmount,
+      debitAmount: tokenAccessDetails[0]?.limits?.debitAmount,
+      sentAmount: tokenAccessDetails[0]?.limits?.debitAmount,
+      createdAt: "",
+      updatedAt: "",
+    } as OutgoingPaymentWithSpentAmounts;
+  }
 }

@@ -86,6 +86,10 @@ npm i
     - NB make sure to replace the preceding $ with https://
   - Put the private key in the root folder i.e. uct-hackathon-2024/private.key
 
+- For the Open Payments variables create an account on [rafiki money](https://rafiki.money/auth/signup)
+- Go to settings > developer keys and generate the keys
+- Copy the downloaded private.key file into the root folder of the repository
+
 ```
 # Postgres
 DATABASE_URL="postgresql://tippy_admin:tippy@localhost:5432/tippy"
