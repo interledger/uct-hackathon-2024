@@ -23,6 +23,7 @@ export async function getAuthenticatedClient() {
     privateKey: env.OPEN_PAYMENTS_SECRET_KEY_PATH,
     keyId: env.OPEN_PAYMENTS_KEY_ID,
   });
+
   return client;
 }
 
@@ -54,7 +55,7 @@ export async function createIncomingPayment(
   value: string,
   walletAddressDetails: WalletAddress,
 ) {
-  console.log("** 2 req");
+  console.log(">> Creating Incoming Payment Resource");
   console.log(walletAddressDetails);
 
   // Request IP grant
@@ -95,8 +96,9 @@ export async function createIncomingPayment(
     },
   );
 
-  console.log("** inc");
+  console.log("<< Resource created");
   console.log(incomingPayment);
+
   return incomingPayment;
 }
 
@@ -114,7 +116,7 @@ export async function createQoute(
   incomingPaymentUrl: string,
   walletAddressDetails: WalletAddress,
 ) {
-  console.log("** 2 req");
+  console.log(">> Creating quoute");
   console.log(walletAddressDetails);
 
   // Request Qoute grant
@@ -151,8 +153,9 @@ export async function createQoute(
     },
   );
 
-  console.log("** qoute");
+  console.log("<< Qoute created");
   console.log(qoute);
+
   return qoute;
 }
 
@@ -171,7 +174,7 @@ export async function getOutgoingPaymentAuthorization(
   input: OPAuthSchema,
   walletAddressDetails: WalletAddress,
 ): Promise<PendingGrant> {
-  console.log("** 1 grant auth");
+  console.log(">> Getting link to authorize outgoing payment grant request");
   console.log(walletAddressDetails);
 
   // Request OP grant
@@ -208,6 +211,7 @@ export async function getOutgoingPaymentAuthorization(
     throw new Error("Expected interactive grant");
   }
 
+  console.log("<< Link for authorization obtained");
   return grant;
 }
 
@@ -227,8 +231,9 @@ export async function createOutgoingPayment(
   if (walletAddress.startsWith("$"))
     walletAddress = walletAddress.replace("$", "https://");
 
-  console.log("** outgoing");
+  console.log(">> Creating outgoing payment");
   console.log(input);
+
   // Get the grant since it was still pending
   const grant = (await client.grant.continue(
     {
@@ -250,6 +255,9 @@ export async function createOutgoingPayment(
       quoteId: input.qouteId, //QUOTE_URL,
     },
   );
+
+  console.log("<< Outgoing payment created");
+  console.log(outgoingPayment);
 
   return outgoingPayment;
 }

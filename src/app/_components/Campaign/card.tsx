@@ -89,14 +89,14 @@ export default function CampaignCard({
           Donate
         </Button>
       </CardHeader>
-      <CardBody className="space-y-3 px-3 text-small ">
+      <CardBody className="space-y-3 px-3 text-small">
         <span className="flex flex-row items-center gap-2 pt-2 font-bold">
           <FaCreditCard />
-          {campaign.walletAddress}
+          <p className="line-clamp-1 break-all">{campaign.walletAddress}</p>
         </span>
         <p>{campaign.about}</p>
       </CardBody>
-      <CardFooter>
+      <CardFooter className="flex w-full flex-col items-center">
         {isCampaignOwner && (
           <div className="space-x-4">
             <Button
