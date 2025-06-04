@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client";
@@ -27,6 +29,8 @@ import { useSearchParams } from "next/navigation";
 import WalletAddressDetails from "../../_components/OpenPayments/walletAddressDetails";
 import IncomingPaymentDetails from "../../_components/OpenPayments/incomingPaymentDetails";
 import QuoteDetails from "../../_components/OpenPayments/quoteDetails";
+import CurrencyInput from "../../_components/Common/currencyInput";
+import { useRouter, usePathname } from "next/navigation";
 import { type SubscriptionType } from "$/src/utils/types";
 import OutgoingPaymentDetails from "../../_components/OpenPayments/outgoingPaymentDetails";
 
@@ -68,6 +72,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
 
   // useDisclosure - Hook provided by nextui to track state of the modal
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const {
     isOpen: isOpOpen,
     onOpen: onOpOpen,
@@ -81,6 +86,10 @@ export default function Campaign({ params }: { params: { id: string } }) {
     quoteId: "",
     interactRef: "",
   });
+
+  // Hooks for reloading the page after a payment
+  const router = useRouter();
+  const pathname = usePathname();
 
   // tRPC Query hooks - Hooks provided by tRPC to query the API procedures on the server
   const campaign = api.campaigns.getOne.useQuery({
@@ -105,7 +114,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
     {
       walletAddress: senderWalletAddress,
       receiverAddress: campaign.data?.walletAddress ?? "",
-      value: donation,
+      value: donation.replace(".", ""),
     },
     { enabled: false },
   );
@@ -157,9 +166,11 @@ export default function Campaign({ params }: { params: { id: string } }) {
 
   // Use effect hooks - The hook allows sideeffects or actions to happen based on certain events taking place
   useEffect(() => {
-    senderWalletDetails.refetch().catch(() => {
-      console.log("Error fetching sender wallet address details");
-    });
+    if (senderWalletAddress) {
+      senderWalletDetails.refetch().catch(() => {
+        console.log("Error fetching sender wallet address details");
+      });
+    }
   }, [senderWalletAddress]);
 
   useEffect(() => {
@@ -307,11 +318,13 @@ export default function Campaign({ params }: { params: { id: string } }) {
       <Card isBlurred className="w-9/12 border-none" shadow="sm">
         <CardBody>
           <div className="grid grid-cols-6 justify-center gap-6 md:grid-cols-12 md:gap-4">
-            <div className="col-span-6 h-fit md:col-span-4">
+            <div
+              className="bg- col-span-6 h-[100%] bg-cover bg-center md:col-span-4"
+              style={{ backgroundImage: "url('/default.png')" }}
+            >
               <Image
                 alt="Campaign image"
-                className="h-fit object-cover"
-                shadow="md"
+                className="object-cover"
                 src={campaign.data?.imageUrl ? campaign.data.imageUrl : ""}
                 width="100%"
               />
@@ -359,15 +372,10 @@ export default function Campaign({ params }: { params: { id: string } }) {
                   color="danger"
                   disabled
                 />
-                <Input
-                  name="amount"
-                  type="number"
-                  className="text-sm"
-                  startContent={receiverWalletDetails.data?.data.assetCode}
-                  label="amount"
-                  placeholder="Amount being sent"
+                <CurrencyInput
                   value={donation}
-                  onValueChange={setDonation}
+                  startContent={senderWalletDetails.data?.data.assetCode}
+                  onChange={setDonation}
                   disabled={subscriptionType === "existing_subscription"}
                   required={subscriptionType !== "existing_subscription"}
                 />
@@ -497,7 +505,7 @@ export default function Campaign({ params }: { params: { id: string } }) {
           </Modal>
           <Modal
             onClose={() => {
-              console.log("** closed");
+              router.replace(pathname);
             }}
             size="2xl"
             isOpen={isOpOpen}

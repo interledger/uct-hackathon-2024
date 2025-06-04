@@ -13,3 +13,14 @@
 .ps-submenu-expand-icon {
   padding-bottom: 3%;
 }
+
+body,
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}

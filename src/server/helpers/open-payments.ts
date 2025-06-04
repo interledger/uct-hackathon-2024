@@ -28,6 +28,7 @@ export async function getAuthenticatedClient() {
     privateKey: env.OPEN_PAYMENTS_SECRET_KEY_PATH,
     keyId: env.OPEN_PAYMENTS_KEY_ID,
   });
+
   return client;
 }
 
@@ -59,6 +60,9 @@ export async function createIncomingPayment(
   value: string,
   walletAddressDetails: WalletAddress,
 ) {
+  console.log(">> Creating Incoming Payment Resource");
+  console.log(walletAddressDetails);
+
   // Request IP grant
   const grant = await client.grant.request(
     {
@@ -97,7 +101,7 @@ export async function createIncomingPayment(
     },
   );
 
-  console.log("** Income Payment");
+  console.log("<< Resource created");
   console.log(incomingPayment);
 
   return incomingPayment;
@@ -117,6 +121,9 @@ export async function createQoute(
   incomingPaymentUrl: string,
   walletAddressDetails: WalletAddress,
 ) {
+  console.log(">> Creating quoute");
+  console.log(walletAddressDetails);
+
   // Request Qoute grant
   const grant = await client.grant.request(
     {
@@ -151,8 +158,9 @@ export async function createQoute(
     },
   );
 
-  console.log("** qoute");
+  console.log("<< Qoute created");
   console.log(qoute);
+
   return qoute;
 }
 
@@ -171,6 +179,9 @@ export async function getOutgoingPaymentAuthorization(
   input: OPAuthSchema,
   walletAddressDetails: WalletAddress,
 ): Promise<PendingGrant> {
+  console.log(">> Getting link to authorize outgoing payment grant request");
+  console.log(walletAddressDetails);
+
   const dateNow = new Date().toISOString();
   const debitAmount = input.debitAmount;
   const receiveAmount = input.receiveAmount;
@@ -214,6 +225,7 @@ export async function getOutgoingPaymentAuthorization(
     throw new Error("Expected interactive grant");
   }
 
+  console.log("<< Link for authorization obtained");
   return grant;
 }
 
@@ -233,6 +245,9 @@ export async function createOutgoingPayment(
   if (walletAddress.startsWith("$"))
     walletAddress = walletAddress.replace("$", "https://");
 
+  console.log(">> Creating outgoing payment");
+  console.log(input);
+
   // Get the grant since it was still pending
   const grant = (await client.grant.continue(
     {
@@ -243,6 +258,9 @@ export async function createOutgoingPayment(
       interact_ref: input.interactRef,
     },
   )) as Grant;
+
+  console.log("<< Outgoing payment grant");
+  console.log(grant);
 
   const outgoingPayment = await client.outgoingPayment.create(
     {
@@ -255,8 +273,8 @@ export async function createOutgoingPayment(
     },
   );
 
-  console.log("** Outgoing Payment Grant");
-  console.log(grant.access_token);
+  console.log("<< Outgoing payment created");
+  console.log(outgoingPayment);
 
   return outgoingPayment;
 }
@@ -272,10 +290,10 @@ export async function processSubscriptionPayment(
   });
 
   if (!token.access_token) {
-    console.error("** Failed to rotate token.");
+    console.error("!! Failed to rotate token.");
   }
 
-  console.log("** Rotated Token ");
+  console.log("<< Rotated Token ");
   console.log(token.access_token);
 
   const tokenAccessDetails = token.access_token.access as {

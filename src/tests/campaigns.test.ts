@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createCaller } from "$/src/server/api/root";
 import { cleanUpDatabase, createTestContext } from "$/src/utils/tests/tests";
 import { beforeEach, describe, test, expect } from "vitest";
