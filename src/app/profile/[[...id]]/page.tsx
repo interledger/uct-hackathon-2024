@@ -35,6 +35,7 @@ import CampaignCard from "../../_components/Campaign/card";
 export default function Profile({ params }: { params: { id: string } }) {
   const { user: clerkUser } = useUser();
   const [edit, setEdit] = React.useState(false);
+  const [campaignWalletAddress, setCampaignWalletAddress] = React.useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const userId = params.id ? params.id[0] : undefined;
@@ -72,6 +73,14 @@ export default function Profile({ params }: { params: { id: string } }) {
       console.log("Error fetching campaigns");
     });
   }
+
+  function formatWalletAddress(walletAddress: string) {
+    if (walletAddress.startsWith("$"))
+      walletAddress = walletAddress.replace("$", "https://");
+
+    return walletAddress;
+  }
+
   return (
     <Container>
       <div className="flex h-screen flex-col gap-4  md:flex-row">
@@ -234,6 +243,12 @@ export default function Profile({ params }: { params: { id: string } }) {
                     className="text-sm"
                     label="wallet address"
                     placeholder="Open payment address to donate to"
+                    value={campaignWalletAddress}
+                    onValueChange={(walletAddress) => {
+                      setCampaignWalletAddress(
+                        formatWalletAddress(walletAddress),
+                      );
+                    }}
                     required
                   />
                   <Textarea

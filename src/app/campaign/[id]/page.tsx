@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client";
@@ -16,9 +18,11 @@ import {
   ModalHeader,
   Link,
   Snippet,
+  RadioGroup,
+  Radio,
 } from "@nextui-org/react";
 import { Card } from "@nextui-org/react";
-import React, { useEffect, useState } from "react";
+import React, { type SyntheticEvent, useEffect, useState } from "react";
 import { api } from "$/src/trpc/react";
 import { FaCheck, FaLock, FaSpinner } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
@@ -27,6 +31,8 @@ import IncomingPaymentDetails from "../../_components/OpenPayments/incomingPayme
 import QuoteDetails from "../../_components/OpenPayments/quoteDetails";
 import CurrencyInput from "../../_components/Common/currencyInput";
 import { useRouter, usePathname } from "next/navigation";
+import { type SubscriptionType } from "$/src/utils/types";
+import OutgoingPaymentDetails from "../../_components/OpenPayments/outgoingPaymentDetails";
 
 /**
  * Types
@@ -51,6 +57,12 @@ export default function Campaign({ params }: { params: { id: string } }) {
   // useState - used to keep track of component variables
   const [step, setStep] = useState(0);
   const [donation, setDonation] = React.useState("");
+  const [token, setToken] = React.useState("");
+  const [quoteId, setQuoteId] = React.useState("");
+  const [payments, setPayments] = React.useState(1);
+  const [manageUrl, setManageUrl] = React.useState("");
+  const [subscriptionType, setSubscriptionType] =
+    React.useState<SubscriptionType>("once_off");
   const [senderWalletAddress, setWalletAddress] = React.useState("");
   const [refetchIncomePayment, setRefetchIncomePayment] = React.useState(false);
   const [refetchQoute, setRefetchQoute] = React.useState(false);
@@ -120,9 +132,11 @@ export default function Campaign({ params }: { params: { id: string } }) {
       {
         walletAddress: senderWalletAddress,
         qouteId: qoute.data?.data.id ?? "",
-        redirectUrl: window.location.href,
+        redirectUrl: window?.location.href,
         debitAmount: qoute.data?.data.debitAmount,
         receiveAmount: qoute.data?.data.receiveAmount,
+        subscriptionType: subscriptionType,
+        payments: payments,
       },
       { enabled: false },
     );
@@ -137,6 +151,18 @@ export default function Campaign({ params }: { params: { id: string } }) {
     },
     { enabled: false },
   );
+
+  const processSubscriptionPayment =
+    api.openPayments.processSubscriptionPayment.useQuery(
+      {
+        senderWalletAddress: senderWalletAddress,
+        receiverWalletAddress: campaign.data?.walletAddress ?? "",
+        manageUrl: manageUrl,
+        previousToken: token,
+        quoteId: quoteId,
+      },
+      { enabled: false },
+    );
 
   // Use effect hooks - The hook allows sideeffects or actions to happen based on certain events taking place
   useEffect(() => {
@@ -178,6 +204,13 @@ export default function Campaign({ params }: { params: { id: string } }) {
   }, []);
 
   useEffect(() => {
+    if (campaign.data?.walletAddress)
+      receiverWalletDetails.refetch().catch(() => {
+        console.log("Error fetching receiver wallet address details");
+      });
+  }, [campaign.data?.walletAddress]);
+
+  useEffect(() => {
     if (opAuth.interactRef) {
       createOutgoingPayment.refetch().catch(() => {
         console.log("Error creating outgoing payment");
@@ -193,6 +226,13 @@ export default function Campaign({ params }: { params: { id: string } }) {
       name: "Receiver Wallet Address Details",
       next: "Create Incoming Payment Resource",
       action: () => {
+        if (subscriptionType === "existing_subscription") {
+          processSubscriptionPayment.refetch().catch(() => {
+            console.log("Error processing subscription payment");
+          });
+          return;
+        }
+
         if (!receiverWalletDetails.isFetched) {
           receiverWalletDetails.refetch().catch(() => {
             console.log("Error fetching receiver wallet address details");
@@ -260,22 +300,31 @@ export default function Campaign({ params }: { params: { id: string } }) {
     },
   ];
 
-  function submitDonation(event: { preventDefault: () => void }) {
+  function submitDonation(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
     event.preventDefault();
     steps[step]?.action();
     onOpen();
   }
 
+  function formatWalletAddress(walletAddress: string) {
+    if (walletAddress.startsWith("$"))
+      walletAddress = walletAddress.replace("$", "https://");
+
+    return walletAddress;
+  }
+
   return (
-    <Container className="flex flex-col items-center">
+    <Container className="m-4 flex flex-col items-center">
       <Card isBlurred className="w-9/12 border-none" shadow="sm">
         <CardBody>
-          <div className="grid grid-cols-6 items-center justify-center gap-6 md:grid-cols-12 md:gap-4">
-            <div className=" col-span-6 md:col-span-4">
+          <div className="grid grid-cols-6 justify-center gap-6 md:grid-cols-12 md:gap-4">
+            <div
+              className="bg- col-span-6 h-[100%] bg-cover bg-center md:col-span-4"
+              style={{ backgroundImage: "url('/default.png')" }}
+            >
               <Image
                 alt="Campaign image"
-                className="h-96 object-cover"
-                shadow="md"
+                className="object-cover"
                 src={campaign.data?.imageUrl ? campaign.data.imageUrl : ""}
                 width="100%"
               />
@@ -307,9 +356,12 @@ export default function Campaign({ params }: { params: { id: string } }) {
                   label="Pay From"
                   placeholder="Enter Your Wallet Address"
                   value={senderWalletAddress}
-                  onValueChange={setWalletAddress}
+                  onValueChange={(walletAddress) => {
+                    setWalletAddress(formatWalletAddress(walletAddress));
+                  }}
                   color="primary"
-                  required
+                  disabled={subscriptionType === "existing_subscription"}
+                  required={subscriptionType !== "existing_subscription"}
                 />
                 <Input
                   name="receiverAddress"
@@ -324,11 +376,52 @@ export default function Campaign({ params }: { params: { id: string } }) {
                   value={donation}
                   startContent={senderWalletDetails.data?.data.assetCode}
                   onChange={setDonation}
+                  disabled={subscriptionType === "existing_subscription"}
+                  required={subscriptionType !== "existing_subscription"}
+                />
+
+                <RadioGroup
+                  onValueChange={(value) =>
+                    setSubscriptionType(value as SubscriptionType)
+                  }
+                  defaultValue="once_off"
+                  orientation="horizontal"
+                >
+                  <Radio value="once_off">Once Off Donation</Radio>
+                  <Radio value="new_subscription">New Subscription</Radio>
+                  <Radio value="existing_subscription">
+                    Existing Subscription
+                  </Radio>
+                </RadioGroup>
+
+                <Input
+                  name="manageurl"
+                  className={`${subscriptionType === "existing_subscription" ? "" : "hidden"} text-sm`}
+                  label="Manage Url"
+                  placeholder="Outgoing payment grant token management url"
+                  onValueChange={setManageUrl}
+                />
+                <Input
+                  name="token"
+                  className={`${subscriptionType === "existing_subscription" ? "" : "hidden"} text-sm`}
+                  label="Previous Token"
+                  placeholder="Previous outgoing payment grant token"
+                  onValueChange={setToken}
+                />
+                <Input
+                  name="payments"
+                  type="number"
+                  min={1}
+                  className={`${subscriptionType === "new_subscription" ? "" : "hidden"} text-sm`}
+                  label="payments"
+                  placeholder="Number of subscription payments"
+                  onValueChange={(value) => setPayments(Number(value))}
                 />
               </div>
 
-              <div className="flex w-full items-center justify-center p-4">
+              <div className="flex w-full items-center justify-center gap-4 p-4">
                 <Button
+                  name="donate"
                   className="data-[hover]:bg-foreground/10"
                   radius="full"
                   variant="solid"
@@ -352,7 +445,13 @@ export default function Campaign({ params }: { params: { id: string } }) {
                 <h2>{steps[step]?.name}</h2>
               </ModalHeader>
               <ModalBody>
-                {step === 0 && (
+                {step === 0 && subscriptionType === "existing_subscription" ? (
+                  <OutgoingPaymentDetails
+                    outgoingPaymentDetails={
+                      processSubscriptionPayment.data?.data
+                    }
+                  />
+                ) : (
                   <WalletAddressDetails
                     walletAddressDetails={receiverWalletDetails.data?.data}
                   />
@@ -389,17 +488,18 @@ export default function Campaign({ params }: { params: { id: string } }) {
                     Previous
                   </Button>
                 )}
-                {step < steps.length - 1 && (
-                  <Button
-                    variant="flat"
-                    onClick={() => {
-                      steps[step + 1]?.action();
-                      setStep(step + 1);
-                    }}
-                  >
-                    {"Next -> " + steps[step]?.next}
-                  </Button>
-                )}
+                {step < steps.length - 1 &&
+                  subscriptionType !== "existing_subscription" && (
+                    <Button
+                      variant="flat"
+                      onClick={() => {
+                        steps[step + 1]?.action();
+                        setStep(step + 1);
+                      }}
+                    >
+                      {"Next -> " + steps[step]?.next}
+                    </Button>
+                  )}
               </ModalFooter>
             </ModalContent>
           </Modal>

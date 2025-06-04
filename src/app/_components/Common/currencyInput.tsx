@@ -5,12 +5,16 @@ type CurrencyInputProps = {
   value: string;
   onChange: (val: string) => void;
   startContent: string | undefined;
+  disabled: boolean;
+  required: boolean;
 };
 
 export default function CurrencyInput({
   value,
   onChange,
   startContent,
+  disabled,
+  required,
 }: CurrencyInputProps) {
   const handleChange = (value: string) => {
     const raw = value.replace(/\D/g, ""); // strip non-digits
@@ -30,7 +34,8 @@ export default function CurrencyInput({
       placeholder="Amount being sent"
       value={value}
       onValueChange={(value) => handleChange(value)}
-      required
+      disabled={disabled}
+      required={required}
     />
   );
 }
