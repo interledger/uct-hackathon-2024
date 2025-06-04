@@ -2,8 +2,7 @@ import { env } from "$/src/env";
 import {
   type WalletAddress,
   type AuthenticatedClient,
-  Grant,
-  OpenPaymentsClientError,
+  type Grant,
   createAuthenticatedClient,
   type PendingGrant,
   isPendingGrant,
