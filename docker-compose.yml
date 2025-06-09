@@ -4,6 +4,7 @@ services:
   db:
     container_name: tippy_db
     image: postgres:12
+    restart: always
     environment:
       POSTGRES_USER: "tippy_admin"
       POSTGRES_PASSWORD: "tippy"
@@ -12,6 +13,22 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  web:
+    container_name: tippy_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules # prevent node_modules from being overwritten
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: sh -c "npx prisma generate && npx prisma migrate dev && npm run dev"
 
 volumes:
   pgdata: {}
